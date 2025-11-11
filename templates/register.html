@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 col-xl-5">
+            <!-- Card with glass effect -->
+            <div class="card border-0 bg-glass shadow-lg overflow-hidden" style="
+                backdrop-filter: blur(16px);
+                background-color: rgba(255, 255, 255, 0.15);
+                border-radius: 20px;
+            ">
+                <!-- Card Header -->
+                <div class="card-header border-0 bg-transparent text-center py-4">
+                    <h3 class="fw-bold text-white"><i class="fas fa-user-plus me-2"></i>Créer un compte</h3>
+                </div>
+                
+                <!-- Card Body -->
+                <div class="card-body p-4 p-md-5">
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            {% for msg in messages %}
+                                <div class="alert alert-glass mb-4" style="
+                                    background: rgba(247, 37, 133, 0.2);
+                                    border-left: 4px solid rgba(247, 37, 133, 0.8);
+                                    color: white;
+                                ">
+                                    {{ msg }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <form method="post" class="needs-validation" novalidate>
+                        <!-- Username Field -->
+                        <div class="mb-4">
+                            <label for="username" class="form-label text-white fw-medium">Nom d'utilisateur</label>
+                            <div class="input-group has-validation">
+                                <span class="input-group-text bg-glass"><i class="fas fa-user text-white"></i></span>
+                                <input type="text" class="form-control bg-glass text-white py-2" 
+                                       id="username" name="username" 
+                                       placeholder="Votre nom d'utilisateur" 
+                                       style="border-color: rgba(255,255,255,0.2)" required>
+                                <div class="invalid-feedback">
+                                    Veuillez saisir un nom d'utilisateur.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Password Field -->
+                        <div class="mb-4">
+                            <label for="password" class="form-label text-white fw-medium">Mot de passe</label>
+                            <div class="input-group has-validation">
+                                <span class="input-group-text bg-glass"><i class="fas fa-lock text-white"></i></span>
+                                <input type="password" class="form-control bg-glass text-white py-2" 
+                                       id="password" name="password" 
+                                       placeholder="••••••••" 
+                                       style="border-color: rgba(255,255,255,0.2)" required>
+                                <button class="btn btn-glass toggle-password" type="button">
+                                    <i class="fas fa-eye text-white"></i>
+                                </button>
+                                <div class="invalid-feedback">
+                                    Veuillez saisir un mot de passe.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="d-grid mt-5 mb-3">
+                            <button type="submit" class="btn btn-light btn-lg py-2 fw-bold text-primary">
+                                <i class="fas fa-user-plus me-2"></i>S'inscrire
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- Login Link -->
+                    <div class="text-center pt-3">
+                        <p class="mb-0 text-white-50">Déjà un compte ? 
+                            <a href="{{ url_for('login') }}" class="text-white fw-medium text-decoration-underline">Se connecter</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bg-glass {
+        background: rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(10px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    .btn-glass {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+    
+    .form-control::placeholder {
+        color: rgba(255,255,255,0.6) !important;
+    }
+    
+    .form-control:focus {
+        background: rgba(255,255,255,0.2) !important;
+        color: white !important;
+        box-shadow: 0 0 0 0.25rem rgba(255,255,255,0.25) !important;
+    }
+    
+    .alert-glass {
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.1);
+        border: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Form validation
+(() => {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+
+// Toggle password visibility
+document.querySelectorAll('.toggle-password').forEach(button => {
+    button.addEventListener('click', function() {
+        const passwordInput = this.parentElement.querySelector('input');
+        const icon = this.querySelector('i');
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+    });
+});
+</script>
+{% endblock %}

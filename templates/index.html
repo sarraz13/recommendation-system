@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% block title %}Accueil | BestPick{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="bg-glass p-3 rounded-3 shadow">
+                <form method="POST" action="{{ url_for('set_metric') }}" class="d-flex align-items-center">
+                    <span class="text-white me-2"><i class="fas fa-chart-line fa-fw"></i> Algorithme :</span>
+                    <select name="metric" id="metric" class="form-select bg-glass text-white border-0" 
+                            onchange="this.form.submit()">
+                        <option value="cosine" {% if current_metric == 'cosine' %}selected{% endif %}>Cosinus</option>
+                        <option value="jaccard" {% if current_metric == 'jaccard' %}selected{% endif %}>Jaccard</option>
+                        <option value="euclidean" {% if current_metric == 'euclidean' %}selected{% endif %}>Euclidienne</option>
+                        <option value="correlation" {% if current_metric == 'correlation' %}selected{% endif %}>Corrélation</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-10 text-center">
+            <div class="bg-glass p-5 rounded-4 shadow-lg position-relative overflow-hidden">
+                <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25">
+                    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.2) 0%, transparent 50%);"></div>
+                </div>
+                <div class="position-relative">
+                    <h1 class="display-3 fw-bold text-white mb-4">
+                        <i class="fas fa-star text-warning me-2"></i>Bienvenue sur BestPick
+                    </h1>
+                    <p class="lead text-white-75 mb-4 fs-4">Découvrez nos sélections exceptionnelles adaptées à vos goûts</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="#products" class="btn btn-light btn-lg px-4 py-3 fw-bold rounded-pill" style="color: #4361ee;">
+                            Explorer <i class="fas fa-arrow-down ms-2"></i>
+                        </a>
+                        {% if session.get('user_id') %}
+                        <a href="#" class="btn btn-glass btn-lg px-4 py-3 fw-bold rounded-pill">
+                            Votre profil <i class="fas fa-user ms-2"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section produits améliorée -->
+    <div id="products" class="row mt-5">
+        <div class="col-12 text-center mb-5">
+            <h2 class="text-white fw-bold display-5 mb-3">Nos Produits Phares</h2>
+            <div class="divider mx-auto bg-white opacity-25" style="height: 2px; width: 100px;"></div>
+            <p class="text-white-50 mt-3">Sélectionnés spécialement pour vous</p>
+        </div>
+
+        {% for produit in produits %}
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100 bg-glass border-0 overflow-hidden shadow-lg product-card">
+                <div class="position-relative" style="height: 220px; overflow: hidden;">
+                    {% if produit.image_url %}
+                        <img src="{{ url_for('static', filename='images/products/' + produit.image_url) }}" 
+                             class="card-img-top h-100 w-100 object-fit-cover product-image"
+                             alt="{{ produit.nom_pdt }}">
+                    {% else %}
+                        <div class="h-100 w-100 bg-dark d-flex align-items-center justify-content-center">
+                            <i class="fas fa-image fa-3x text-white-50"></i>
+                        </div>
+                    {% endif %}
+                    <div class="position-absolute top-0 end-0 m-2">
+                        <span class="badge bg-warning text-dark rounded-pill">Nouveau</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title text-white mb-0">{{ produit.nom_pdt }}</h5>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i>
+                            <span class="text-white-50 ms-1">4.5</span>
+                        </div>
+                    </div>
+                    <p class="card-text text-white-50 mt-2">{{ produit.description|truncate(100) }}</p>
+                </div>
+                <div class="card-footer bg-transparent border-top border-white border-opacity-10 pt-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h5 text-white fw-bold mb-0">{{ produit.prix }} €</span>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-glass btn-sm px-3 rounded-pill">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                            <a href="{{ url_for('product_details', product_id=produit.id_pdt) }}" 
+                               class="btn btn-primary btn-sm px-3 rounded-pill">
+                                <i class="fas fa-shopping-cart me-1"></i> Acheter
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Call to action amélioré -->
+    <div class="row justify-content-center mt-5">
+        <div class="col-lg-8 text-center">
+            <div class="bg-glass p-5 rounded-4 shadow-lg position-relative overflow-hidden">
+                <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25">
+                    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: radial-gradient(circle at 70% 50%, rgba(255,255,255,0.2) 0%, transparent 50%);"></div>
+                </div>
+                <div class="position-relative">
+                    <h3 class="text-white mb-4 display-6">Prêt à faire votre choix ?</h3>
+                    <p class="text-white-50 mb-4">Découvrez notre catalogue complet de produits soigneusement sélectionnés.</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="#" class="btn btn-light btn-lg px-4 py-3 fw-bold rounded-pill" style="color: #4361ee;">
+                            Voir tous les produits <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                        {% if not session.get('user_id') %}
+                        <a href="{{ url_for('register') }}" class="btn btn-glass btn-lg px-4 py-3 fw-bold rounded-pill">
+                            S'inscrire <i class="fas fa-user-plus ms-2"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .divider {
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.75), transparent);
+        height: 3px !important;
+    }
+    
+    .product-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-10px) !important;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.3) !important;
+    }
+
+    .product-image {
+        transition: transform 0.5s ease;
+    }
+    
+    .product-card:hover .product-image {
+        transform: scale(1.1);
+    }
+    
+    #metric {
+        max-width: 200px;
+        background: rgba(255,255,255,0.1) !important;
+        color: white !important;
+        border: 1px solid rgba(255,255,255,0.3) !important;
+    }
+    
+    #metric:focus {
+        box-shadow: 0 0 0 0.25rem rgba(255,255,255,0.25) !important;
+    }
+    
+    #metric option {
+        background: #2a2f36;
+    }
+    
+    .btn-glass:hover {
+        background: rgba(255,255,255,0.2) !important;
+    }
+    
+    .rounded-4 {
+        border-radius: 1rem !important;
+    }
+    
+    .rounded-5 {
+        border-radius: 1.5rem !important;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+   
+    document.addEventListener('DOMContentLoaded', function() {
+        const productCards = document.querySelectorAll('.product-card');
+        
+        productCards.forEach((card, index) => {
+          
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 150 * index);
+        });
+    });
+</script>
+{% endblock %}

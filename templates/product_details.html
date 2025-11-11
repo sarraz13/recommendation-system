@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ produit.nom_pdt }} | BestPick{% endblock %}
+
+{% block content %}
+<div class="alert alert-glass text-white">
+    Statut de connexion : 
+    {% if session.get('user_id') %}
+        Connecté (User ID: {{ session['user_id'] }})
+    {% else %}
+        Non connecté
+    {% endif %}
+</div>
+<!-- Indicateur de métrique - Ajouter ici -->
+<div class="alert bg-glass text-white mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <i class="fas fa-calculator me-2"></i>
+            Mode de recommandation : <strong>{{ current_metric|capitalize }}</strong>
+        </div>
+        <a href="{{ url_for('index') }}" class="text-white text-decoration-none">
+            <i class="fas fa-edit me-1"></i>Modifier
+        </a>
+    </div>
+</div>
+<div class="container py-4">
+    <!-- Product Main Section -->
+    <div class="card bg-glass border-0 shadow-lg mb-5">
+        <div class="row g-0">
+            <!-- Product Image -->
+            <div class="col-md-5">
+                <img src="{{ url_for('static', filename='images/products/' + produit.image_url) if produit.image_url else url_for('static', filename='images/default-product.jpg') }}" 
+                     class="img-fluid w-100 h-100 object-fit-cover"
+                     alt="{{ produit.nom_pdt }}"
+                     style="min-height: 400px;">
+            </div>
+            
+            <!-- Product Details -->
+            <div class="col-md-7">
+                <div class="card-body p-4 p-xl-5">
+                    <h1 class="text-white fw-bold mb-3">{{ produit.nom_pdt }}</h1>
+                    <p class="text-white-50 mb-4">{{ produit.description }}</p>
+                    
+                    <div class="d-flex align-items-center mb-4">
+                        <h3 class="text-white fw-bold">€{{ produit.prix }}</h3>
+                    </div>
+                    
+                    <!-- Rating Section -->
+                    <div class="rating-section bg-glass p-4 rounded-3 mb-4">
+                        <h4 class="text-white mb-4">
+                            <i class="fas fa-star-half-alt me-2 text-warning"></i>Notation
+                        </h4>
+                        
+                        {% if note_stats.total_votes > 0 %}
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="rating-stars me-3">
+                                {% for i in range(5) %}
+                                    <i class="fas fa-star {{ 'text-warning' if i < note_stats.moyenne|round else 'text-white-50' }}"></i>
+                                {% endfor %}
+                            </div>
+                            <span class="text-white">
+                                <strong>{{ "%.1f"|format(note_stats.moyenne) }}</strong> ({{ note_stats.total_votes }} votes)
+                            </span>
+                        </div>
+                        {% else %}
+                        <p class="text-white-50">Aucune note pour ce produit</p>
+                        {% endif %}
+                        
+                        {% if session.get("user_id") %}
+                        <form method="post" action="{{ url_for('noter_produit', product_id=produit.id_pdt) }}" class="rating-form">
+                            <div class="mb-3">
+                                <label class="form-label text-white">Donnez votre note :</label>
+                                <div class="star-rating">
+                                    {% for i in range(5, 0, -1) %}
+                                        <input type="radio" id="star{{i}}" name="note" value="{{i}}" {{ 'checked' if user_note == i else '' }}>
+                                        <label for="star{{i}}" class="fas fa-star"></label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-light fw-bold w-100" style="color: #4361ee;">
+                                <i class="fas fa-paper-plane me-1"></i> Envoyer la note
+                            </button>
+                        </form>
+                        {% else %}
+                        <div class="alert bg-glass text-white border-white border-opacity-10">
+                            <a href="{{ url_for('login') }}" class="text-white fw-bold text-decoration-underline">Connectez-vous</a> pour noter ce produit.
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-light fw-bold flex-grow-1 py-2" style="color: #4361ee;">
+                            <i class="fas fa-shopping-cart me-2"></i>Ajouter au panier
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content-Based Recommendations (Item-based) -->
+    {% if produits_similaires %}
+    <div class="mb-5">
+        <h3 class="text-white fw-bold mb-4">
+            <i class="fas fa-boxes me-2"></i>Produits recommandés (similarité de contenu)
+        </h3>
+        <div class="row g-4">
+            {% for produit_similaire in produits_similaires %}
+            <div class="col-md-3">
+                <div class="card bg-glass border-0 h-100 shadow-lg">
+                    <img src="{{ url_for('static', filename='images/products/' + produit_similaire.image_url) if produit_similaire.image_url else url_for('static', filename='images/default-product.jpg') }}"
+                         class="card-img-top"
+                         alt="{{ produit_similaire.nom_pdt }}"
+                         style="height: 180px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="text-white">{{ produit_similaire.nom_pdt }}</h5>
+                        <p class="text-white-50">{{ produit_similaire.prix }} €</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-top border-white border-opacity-10">
+                        <a href="{{ url_for('product_details', product_id=produit_similaire.id_pdt) }}" 
+                           class="btn btn-sm btn-glass w-100">
+                            Voir détails
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Collaborative Filtering Recommendations (User-based) -->
+    {% if produits_recommande %}
+    <div class="mb-5">
+        <h3 class="text-white fw-bold mb-4">
+            <i class="fas fa-users me-2"></i>Autres utilisateurs préfèrent (filtrage collaboratif)
+        </h3>
+        <div class="row g-4">
+            {% for produit_rec in produits_recommande %}
+            <div class="col-md-3">
+                <div class="card bg-glass border-0 h-100 shadow-lg">
+                    <img src="{{ url_for('static', filename='images/products/' + produit_rec.image_url) if produit_rec.image_url else url_for('static', filename='images/default-product.jpg') }}"
+                         class="card-img-top"
+                         alt="{{ produit_rec.nom_pdt }}"
+                         style="height: 180px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="text-white">{{ produit_rec.nom_pdt }}</h5>
+                        <p class="text-white-50">{{ produit_rec.prix }} €</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-top border-white border-opacity-10">
+                        <a href="{{ url_for('product_details', product_id=produit_rec.id_pdt) }}" 
+                           class="btn btn-sm btn-glass w-100">
+                            Voir détails
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .object-fit-cover {
+        object-fit: cover;
+    }
+    
+    .rating-stars {
+        font-size: 1.5rem;
+        letter-spacing: 2px;
+    }
+    
+    .card {
+        transition: transform 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    
+    /* Star Rating System */
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        margin-bottom: 1rem;
+    }
+    
+    .star-rating input {
+        display: none;
+    }
+    
+    .star-rating label {
+        font-size: 2rem;
+        color: #6c757d;
+        cursor: pointer;
+        transition: color 0.2s;
+        margin-right: 5px;
+    }
+    
+    .star-rating input:checked ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        color: #ffc107;
+    }
+    
+    .star-rating input:checked + label {
+        color: #ffc107;
+    }
+
+  
+    .metric-indicator {
+        background: rgba(67, 97, 238, 0.15);
+        border-left: 3px solid #4361ee;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Highlight stars on hover
+document.querySelectorAll('.star-rating label').forEach(star => {
+    star.addEventListener('mouseover', function() {
+        const stars = document.querySelectorAll('.star-rating label');
+        const currentIndex = Array.from(stars).indexOf(this);
+        
+        stars.forEach((s, index) => {
+            if (index >= currentIndex) {
+                s.style.color = '#ffc107';
+            }
+        });
+    });
+    
+    star.addEventListener('mouseout', function() {
+        const stars = document.querySelectorAll('.star-rating label');
+        const checkedInput = document.querySelector('.star-rating input:checked');
+        
+        if (checkedInput) {
+            const checkedIndex = Array.from(document.querySelectorAll('.star-rating input')).indexOf(checkedInput);
+            stars.forEach((s, index) => {
+                s.style.color = index >= checkedIndex ? '#ffc107' : '#6c757d';
+            });
+        } else {
+            stars.forEach(s => {
+                s.style.color = '#6c757d';
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

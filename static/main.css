@@ -1,0 +1,48 @@
+:root {
+    --primary-color: #4e73df;
+    --secondary-color: #858796;
+    --success-color: #1cc88a;
+    --dark-color: #5a5c69;
+}
+
+body {
+    background-color: #f8f9fc;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.card {
+    border: none;
+    border-radius: 0.35rem;
+}
+
+.shadow {
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15) !important;
+}
+
+/* Animation for rating stars */
+.rating-stars i {
+    transition: transform 0.2s, color 0.2s;
+}
+.rating-stars:hover i {
+    transform: scale(1.2);
+}
+.rating-stars i:hover ~ i {
+    color: var(--secondary-color) !important;
+}
+.card {
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+.card-img-top {
+    height: 200px;
+    object-fit: contain;
+    padding: 10px;
+}
+.rating-stars {
+    color: gold;
+    font-size: 1.2em;
+}

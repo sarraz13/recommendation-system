@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Recommandations utilisateur</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Recommandations pour l'utilisateur {{ user_id }}</h2>
+
+    <ul>
+      {% for nom, priorite, produit_similaire in recommendations %}
+        <li><strong>{{ produit_similaire }}</strong> (Similaire à : {{ nom }}) — priorité {{ priorite }}</li>
+      {% else %}
+        <li>Aucune recommandation trouvée.</li>
+      {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('index') }}">⬅ Retour à l'accueil</a>
+
+</body>
+</html>
