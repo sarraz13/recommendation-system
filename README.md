@@ -21,8 +21,3 @@ It combines **collaborative filtering** with **content-based filtering** using *
 - **Other Tools:** psycopg2 for database interaction, html/css for interfaces
 
 ---
-
-## Usage
-1. Clone the repository:
-```bash
-git clone https://github.com/your-username/recommendation-system
